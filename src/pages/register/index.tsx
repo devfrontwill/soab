@@ -1,14 +1,26 @@
+import { useState } from 'react'
 import Head from "next/head";
 import Image from "next/image";
-import logoImg from '../../public/images/logo.svg';
+import logoImg from '../../../public/images/logo.svg';
 import { Flex, Text, Center, Input, Button } from "@chakra-ui/react";
 import Link from "next/link";
 
-export default function Login() {
+export default function Register() {
+
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    function handleRegister() {
+        console.log(name);
+        console.log(email);
+        console.log(password);
+    }
+
     return (
         <>
             <Head>
-                <title>S.O.A.B | Faça login para acessar </title>
+                <title>S.O.A.B | Crie sua conta </title>
             </Head>
             <Flex background="barber.900" height="100vh" alignItems="center" justifyContent="center">
 
@@ -26,34 +38,56 @@ export default function Login() {
                     <Input
                         background="barber.400"
                         variant="filled"
+                        color="button.default"
+                        _hover={{ bg: "#1b1b1b" }}
                         size="lg"
-                        placeholder="seuemail@email.com"
-                        type="email"
+                        placeholder="Nome da Barbearia"
+                        type="text"
                         mb={3}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                     />
                     <Input
                         background="barber.400"
                         variant="filled"
+                        color="button.default"
+                        _hover={{ bg: "#1b1b1b" }}
+                        size="lg"
+                        placeholder="seuemail@email.com"
+                        type="email"
+                        mb={3}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Input
+                        background="barber.400"
+                        variant="filled"
+                        color="button.default"
+                        _hover={{ bg: "#1b1b1b" }}
                         size="lg"
                         placeholder="**************"
                         type="text"
                         mb={6}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
 
                     <Button background="button.cta"
                         mb={6}
                         color="gray.900"
                         size="lg"
-                        _hover={{ bg: "#ffb13e" }}>
-                        Acessar
+                        _hover={{ bg: "#ffb13e" }}
+                        onClick={handleRegister}
+                    >
+                        Cadastrar
                     </Button>
 
                     <Center mt={2}>
-                        <Link href="/register">
+                        <Link href="/login">
                             <Text
                                 color="button.default"
                                 cursor="pointer">
-                                Ainda não possui uma conta? <strong>Cadastre-se</strong>
+                                Já possui uma conta? <strong>Entrar</strong>
                             </Text>
                         </Link>
                     </Center>
