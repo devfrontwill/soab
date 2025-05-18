@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import logoImg from '../../../public/images/logo.svg';
 import { Flex, Text, Center, Input, Button } from "@chakra-ui/react";
 import Link from "next/link";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function Login() {
+
+    const { signIn } = useContext(AuthContext);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    function handleLogin(){
-        console.log(email)
-        console.log(password)
+    async function handleLogin(){
+        await signIn({
+            email,
+            password,
+        })
     }
 
     return (
