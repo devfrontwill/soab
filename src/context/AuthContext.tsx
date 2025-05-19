@@ -1,4 +1,6 @@
 import { createContext, ReactNode, useState } from 'react'
+import { destroyCookie } from 'nookies';
+import Router from 'next/router';
 
 interface AuthContextData {
     user: UserProps;
@@ -29,6 +31,17 @@ interface SignInProps {
 }
 
 export const AuthContext = createContext({} as AuthContextData);
+
+export function signOut(){
+    console.log("ERROR de LogOUT");
+
+    try {
+        destroyCookie(null, '@barber.token', { path: '/' })
+        Router.push('/login');
+    } catch (err) {
+        console.log("Error ao Sair. Try Again")
+    }
+}
 
 export function AuthProvider({ children }: AuthProviderProps) {
 
