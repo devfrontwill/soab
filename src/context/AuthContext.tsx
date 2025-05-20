@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useState } from 'react'
-import { destroyCookie } from 'nookies';
+import { destroyCookie, setCookie } from 'nookies';
 import Router from 'next/router';
+import { api } from '@/services/apiClient';
 
 interface AuthContextData {
     user: UserProps;
@@ -32,7 +33,7 @@ interface SignInProps {
 
 export const AuthContext = createContext({} as AuthContextData);
 
-export function signOut(){
+export function signOut() {
     console.log("ERROR de LogOUT");
 
     try {
@@ -49,11 +50,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const isAuthenticated = !!user;
 
     async function signIn({ email, password }: SignInProps) {
-        console.log("Logando user")
-        console.log({
-            email,
-            password
-        })
+        try {
+
+            const response = await api.post("/session", {
+                email,
+                password,
+            })
+            const { id, name, token, subscriptions, endereco } = response.data;
+
+            setCookie(undefined, '@barber.token', token, {
+                maxAge: 60 * 60 * 24 * 30, //expirar em 1 mes
+                path: '/'
+            })
+
+            setUser({
+                id,
+                name,
+                email,
+                endereco,
+                subscriptions
+            })
+
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+            Router.push('/dashboard');
+
+        } catch (err) {
+            console.log("Erro ao tentar logar", err)
+        }
     }
 
     return (
