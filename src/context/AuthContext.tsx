@@ -1,8 +1,7 @@
-import { createContext, ReactNode, useState } from 'react'
-import { destroyCookie, setCookie } from 'nookies';
+import { createContext, ReactNode, useState, useEffect } from 'react'
+import { destroyCookie, setCookie, parseCookies } from 'nookies';
 import Router from 'next/router';
 import { api } from '@/services/apiClient';
-import path from 'path';
 
 interface AuthContextData {
     user: UserProps;
@@ -34,7 +33,7 @@ interface SignInProps {
     password: string;
 }
 
-interface SignUpProps{
+interface SignUpProps {
     name: string;
     email: string;
     password: string;
@@ -54,9 +53,28 @@ export function signOut() {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-
     const [user, setUser] = useState<UserProps>();
     const isAuthenticated = !!user;
+
+    useEffect(() => {
+        const {'@barber.token': token} = parseCookies();
+
+        if(token){
+            api.get('/me').then(response => {
+                const { id, name, endereco, email, subscriptions } = response.data;
+                setUser({
+                    id,
+                    name,
+                    email,
+                    endereco,
+                    subscriptions
+                })
+            }).catch(() => {
+                signOut();
+            })
+        }
+
+    }, [])
 
     async function signIn({ email, password }: SignInProps) {
         try {
@@ -89,9 +107,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
-    async function signUp({ name, email, password }: SignUpProps){
+    async function signUp({ name, email, password }: SignUpProps) {
         try {
-            
+
             const response = await api.post('/users', {
                 name,
                 email,
@@ -107,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     async function logoutUser() {
         try {
-            
+
             destroyCookie(null, '@barber.token', { path: '/' })
             Router.push('login')
             setUser(null);
