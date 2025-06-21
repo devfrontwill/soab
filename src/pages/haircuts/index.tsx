@@ -1,9 +1,12 @@
 import Head from "next/head";
 import { Sidebar } from "@/components/sidebar";
-import { Flex, Text, Heading, Button, Stack, Switch } from "@chakra-ui/react";
+import { Flex, Text, Heading, Button, Stack, Switch, useMediaQuery } from "@chakra-ui/react";
 import Link from "next/link";
 
 export default function Haircuts() {
+
+const [isMobile] = useMediaQuery("(max-width: 500px)");
+    
     return (
         <>
             <Head>
@@ -12,10 +15,10 @@ export default function Haircuts() {
             <Sidebar>
                 <Flex direction="column" alignItems="flex-start" justifyContent="flex-start">
 
-                    <Flex
-                        direction="row"
+                    <Flex                        
+                        direction={ isMobile ? "column" : "row" }
                         w="100%"
-                        alignItems="center"
+                        alignItems={ isMobile ? "flex-start" : "center" }
                         justifyContent="flex-start"
                         mb={0}
                     >
