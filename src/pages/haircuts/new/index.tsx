@@ -1,12 +1,47 @@
+import { useState } from 'react';
 import Head from "next/head";
 import { Sidebar } from '../../../components/sidebar';
 import Link from "next/link";
 
 import { Flex, Text, Heading, Button, useMediaQuery, Input } from "@chakra-ui/react";
 import { FiChevronLeft } from "react-icons/fi"
+import Router from 'next/router';
 
-export default function NewHaircut() {
+import { canSSRAuth } from "@/utils/canSSRAuth";
+import { setupAPIClient } from "@/services/api";
+
+interface NewHaircutProps {
+    subscription: boolean;
+    count: number;
+}
+
+
+export default function NewHaircut({ subscription, count }: NewHaircutProps) {
     const [isMobile] = useMediaQuery("(max-width: 500px)");
+
+    const [name, setName] = useState('');
+    const [price, setPrice] = useState('');
+
+    async function handleRegister() {
+        if (name === '' || price === '') {
+            return;
+        }
+
+        try {
+
+            const apiClient = setupAPIClient();
+            await apiClient.post('/haircut', {
+                name: name,
+                price: Number(price),
+            })
+
+            Router.push('/haircuts')
+
+        } catch (err) {
+            console.log(err);
+            alert("Erro ao cadastrar esse modelo") //melhorar com toastfy
+        }
+    }
 
     return (
         <>
@@ -68,6 +103,8 @@ export default function NewHaircut() {
                             w="85%"
                             bg="gray.900"
                             mb={3}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                         />
                         <Input
                             placeholder="Valor do corte ex: 59.90"
@@ -76,17 +113,36 @@ export default function NewHaircut() {
                             w="85%"
                             bg="gray.900"
                             mb={4}
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                         />
                         <Button
+                            onClick={handleRegister}
                             w="85%"
                             size="lg"
                             color="gray.900"
                             mb={6}
                             bg="button.cta"
                             _hover={{ bg: "#ffb13e" }}
+                            disabled={!subscription && count >= 3}
                         >
                             Cadastrar
                         </Button>
+
+                        {!subscription && count >= 3 && (
+                            <Flex direction="row" align="center" justifyContent="center">
+                                <Text>
+                                    Você atingiu seu limite de cortes.
+                                </Text>
+                                <Link href="/planos">
+                                    <Text fontWeight="bold" color="#31FB6A" cursor="pointer" ml={1.5}>
+                                        Seja Premium
+                                    </Text>
+                                </Link>
+                            </Flex>
+
+                        )}
+
                     </Flex>
                 </Flex>
             </Sidebar>
@@ -94,3 +150,29 @@ export default function NewHaircut() {
         </>
     )
 }
+
+export const getServerSideProps = canSSRAuth(async (ctx) => {
+    try {
+        const apiClient = setupAPIClient(ctx);
+
+        const response = await apiClient.get('/haircut/check')
+        const count = await apiClient.get('/haircut/count')
+
+        return {
+            props: {
+                subscription: response.data?.subscription?.status === 'active' ? true : false,
+                count: count.data
+            }
+        }
+
+    } catch (err) {
+        console.log(err);
+
+        return {
+            redirect: {
+                destination: '/dashboard',
+                permanent: false,
+            }
+        }
+    }
+})
