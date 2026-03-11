@@ -73,7 +73,7 @@ export default function EditHaircut({ subscription, haircut }: EditHaircutProps)
             console.log("AA");
             console.log(error);
         }
-    }tyg
+    }
 
     return (
         <>
