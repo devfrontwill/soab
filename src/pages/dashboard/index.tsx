@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Head from "next/head";
 import {
     Flex,
@@ -12,10 +13,28 @@ import { IoMdPerson } from 'react-icons/io'
 
 import { canSSRAuth } from "@/utils/canSSRAuth";
 import { Sidebar } from "@/components/sidebar";
+import { setupAPIClient } from "@/services/api";
 
-export default function Dashboard() {
+export interface ScheduleItem {
+    id: string;
+    customer: string;
+    haircut: {
+        id: string;
+        name: string;
+        price: string;
+        user_id: string;
+    }
+}
 
-    const[isMobile] = useMediaQuery("(max-width: 500px)");
+interface DashboardProps {
+    schedule: ScheduleItem[]
+}
+
+export default function Dashboard({ schedule }: DashboardProps) {
+
+    const [list, setList] = useState(schedule);
+
+    const [isMobile] = useMediaQuery("(max-width: 500px)");
 
     return (
         <>
@@ -33,35 +52,44 @@ export default function Dashboard() {
                         </Link>
                     </Flex>
 
-                    <ChakraLink
-                        w="100%"
-                        m={0}
-                        p={0}
-                        mt={1}
-                        background="transparent"
-                        style={{ textDecoration: 'none' }}
-                    >
-                        <Flex
+                    {list.map(item => (
+                        <ChakraLink
+                            key={item?.id}
                             w="100%"
-                            direction={isMobile ? "column" : "row"}
-                            p={4}
-                            rounded={4}
-                            mb={4}
-                            bg="barber.400"
-                            justify="space-between"
-                            align={isMobile ? "flex-start" : "center"}
+                            m={0}
+                            p={0}
+                            mt={1}
+                            background="transparent"
+                            style={{ textDecoration: 'none' }}
                         >
+                            <Flex
+                                w="100%"
+                                direction={isMobile ? "column" : "row"}
+                                p={4}
+                                rounded={4}
+                                mb={2}
+                                bg="barber.400"
+                                justify="space-between"
+                                align={isMobile ? "flex-start" : "center"}
+                            >
 
-                            <Flex direction="row" mb={isMobile ? 2 : 0} align="center" justify="center">
-                                <IoMdPerson size={28} color="lightblue" />
-                                <Text fontWeight="bold" ml={4} noOfLines={1}>Wiliam Roza</Text>
+                                <Flex direction="row" mb={isMobile ? 2 : 0} align="center" justify="center">
+                                    <IoMdPerson size={28} color="lightblue" />
+                                    <Text fontWeight="bold" ml={4} noOfLines={1}>
+                                        {item?.customer}
+                                    </Text>
+                                </Flex>
+
+                                <Text fontWeight="bold" mb={isMobile ? 2 : 0}>
+                                    {item?.haircut?.name}
+                                </Text>
+                                <Text fontWeight="bold" mb={isMobile ? 2 : 0}>
+                                    { item?.haircut?.price }
+                                </Text>
+
                             </Flex>
-
-                            <Text fontWeight="bold" mb={isMobile ? 2 : 0}>Corte completo</Text>
-                            <Text fontWeight="bold" mb={isMobile ? 2 : 0}>R$ 59.90</Text>
-
-                        </Flex>
-                    </ChakraLink>
+                        </ChakraLink>
+                    ))}
 
 
                 </Flex>
@@ -71,9 +99,26 @@ export default function Dashboard() {
 }
 
 export const getServerSideProps = canSSRAuth(async (ctx) => {
-    return {
-        props: {
 
+    try {
+
+        const apiClient = setupAPIClient(ctx);
+        const response = await apiClient.get("/schedule")
+
+        return {
+            props: {
+                schedule: response.data,
+            }
         }
+
+    } catch (err) {
+        console.log(err);
+        return {
+            props: {
+                schedule: []
+            }
+        }
+
     }
+
 })
