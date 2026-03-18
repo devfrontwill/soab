@@ -33,8 +33,32 @@ export function ModalInfo({ isOpen, onOpen, onClose, data, finishService }: Moda
                 <ModalCloseButton />
                 <ModalBody>
                     <Flex align="center" mb={3}>
-                        <Text>Teste Modal</Text>
+                        <FiUser size={28} color="#FFB13e"/>
+                        <Text ml={3} fontSize="1xl" fontWeight="bold" color="white">{data?.customer}</Text>
                     </Flex>
+
+                    <Flex align="center" mb={3}>
+                        <FiScissors size={28} color="#FFF"/>
+                        <Text ml={3} fontSize="1xl" fontWeight="bold" color="white"> {data?.haircut?.name} </Text>
+                    </Flex>
+
+                    <Flex align="center" mb={3}>
+                        <FaMoneyBillAlt size={28} color="#46ef75"/>
+                        <Text ml={3} fontSize="1xl" fontWeight="bold" color="white">{data?.haircut?.price}</Text>
+                    </Flex>
+
+                    <ModalFooter>
+                        <Button
+                            bg="button.cta"
+                            _hover={{ bg: "#FFb13e" }}
+                            color="#FFF"
+                            mr={3}
+                            onClick={ () => finishService()}
+                        >
+                            Finalizar Serviço
+                        </Button>
+                    </ModalFooter>
+
                 </ModalBody>
 
             </ModalContent>
