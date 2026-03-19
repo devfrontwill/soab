@@ -10,10 +10,16 @@ import {
 
 import { FaCheckCircle } from 'react-icons/fa';
 import { FcCancel } from 'react-icons/fc';
-
 import { Sidebar } from "@/components/sidebar";
 
-export default function Planos() {
+import { canSSRAuth } from "@/utils/canSSRAuth";
+import { setupAPIClient } from "@/services/api";
+
+interface PlanosProps {
+    premium: boolean;
+}
+
+export default function Planos({ premium }: PlanosProps) {
 
     const [isMobile] = useMediaQuery('(max-width: 500px)');
 
@@ -77,7 +83,7 @@ export default function Planos() {
                             </Flex>
 
                             <Flex mt={14} justify="center">
-                            <Text color="#FFF" fontWeight="bold" fontSize="2xl" ml={4} mb={2} mt={2}>Gratuito</Text>
+                                <Text color="#FFF" fontWeight="bold" fontSize="2xl" ml={4} mb={2} mt={2}>Gratuito</Text>
                             </Flex>
 
                         </Flex>
@@ -125,14 +131,31 @@ export default function Planos() {
                             <Text color="#31fb6a" fontWeight="bold" fontSize="2xl" ml={4} mb={2} mt={2}>R$9.99</Text>
 
                             <Button
-                                bg="button.cta"
+                                bg={premium ? "transparent" : "button.cta"}
                                 m={2}
                                 color="white"
-                                _hover={{ color: "#000" }}
+                                _hover={{ color: "#FFF" }}
                                 onClick={() => { }}
+                                disabled={premium}
                             >
-                                Assinar Premium
+                                {premium ? (
+                                    "VOCÊ JÁ É PREMIUM"
+                                ) : (
+                                    "ASSINAR PREMIUM"
+                                )}
                             </Button>
+
+                            {premium && (
+                                <Button
+                                    m={2}
+                                    bg="#FFF"
+                                    color="#000"
+                                    fontWeight="bold"
+                                    onClick={ () => {}}
+                                >
+                                    ALTERAR ASSINATURA
+                                </Button>
+                            )}
 
                         </Flex>
 
@@ -144,3 +167,29 @@ export default function Planos() {
         </>
     )
 }
+
+export const getServerSideProps = canSSRAuth(async (ctx) => {
+
+    try {
+
+        const apiClient = setupAPIClient(ctx);
+        const response = await apiClient.get("/me");
+
+        return {
+            props: {
+                premium: response?.data?.subscriptions?.status === 'active' ? true : false
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+
+        return {
+            redirect: {
+                destination: '/dashboard',
+                permanent: false,
+            }
+        }
+    }
+
+})
