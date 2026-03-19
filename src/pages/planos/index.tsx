@@ -75,7 +75,10 @@ export default function Planos() {
                                     Receber todas atualizações.
                                 </Text>
                             </Flex>
+
+                            <Flex mt={14} justify="center">
                             <Text color="#FFF" fontWeight="bold" fontSize="2xl" ml={4} mb={2} mt={2}>Gratuito</Text>
+                            </Flex>
 
                         </Flex>
 
